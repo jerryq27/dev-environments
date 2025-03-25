@@ -19,6 +19,8 @@ RUN apt-get update -y && \
         curl \
         git \
         tmux \
+        python3 \
+        python3-poetry \
         unzip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
@@ -55,8 +57,6 @@ RUN curl -fsSL https://bun.sh/install | bash && \
 
 COPY ./configs/bash/bashrc $USER_HOME/.bashrc
 COPY ./configs/bash/profile $USER_HOME/.profile
-
-ENV PATH="$USER_HOME/.local/bin:$PATH"
 
 RUN chown --recursive $USER_NAME:$USER_NAME $USER_HOME
 
