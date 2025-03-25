@@ -24,9 +24,9 @@ Things to keep in mind with writing the Dockerfile:
 1. All commands are ran as `root` and files created will be owned by `root`
 1. Note where packages install things and which envnironment variables they use
 1. Create a new user with a `$UID:$GID` that matches the host system user's `$UID:$GID`
-1. Link package binaries to the new user's `.local/bin/` directory
+1. Update `$PATH` or link package binaries to the new user's `.local/bin/` directory
 1. Copy any user-specific configuration files (like `.bashrc`) into the new user's Home
-1. Ensure `$PATH` includes that directory through the Dockerfile or something like `.bashrc`
+1. Ensure `$PATH` includes that directory through the Dockerfile or something like `.profile`
 1. Make sure the new user is the owner of their Home directory
 1. Switch from root to the new user
 
