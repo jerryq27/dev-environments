@@ -1,0 +1,9 @@
+services:
+  test_lowleveldev:
+    container_name: test_lowleveldev
+    image: env_lowleveldev:latest
+    pull_policy: missing
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/app

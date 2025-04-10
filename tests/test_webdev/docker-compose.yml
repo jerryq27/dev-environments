@@ -1,0 +1,9 @@
+services:
+  test_webdev:
+    container_name: test_webdev
+    image: env_webdev:latest
+    pull_policy: missing
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./:/app
