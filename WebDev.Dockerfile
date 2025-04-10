@@ -4,14 +4,8 @@ FROM ubuntu:latest
 # Enable colors in the container shell
 ENV TERM=xterm-256color
 ENV ENVIRONMENT=webdev
-
 ENV USER_NAME=$ENVIRONMENT
 ENV USER_HOME=/home/$USER_NAME
-ENV HOME=$USER_HOME
-
-ENV NODE_VERSION=22
-ENV BUN_LOCATION=$USER_HOME/.bun
-ENV NVM_LOCATION=$USER_HOME/.nvm
 
 # Cleanup recommended in Docker docs best practices.
 RUN apt-get update -y && \
@@ -19,46 +13,39 @@ RUN apt-get update -y && \
         curl \
         git \
         tmux \
+        neovim \
         python3 \
         python3-poetry \
+        ruby-full \
+        sqlite3 \
         unzip && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
+    curl -fsSL https://bun.sh/install | bash && \
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
+    \. "$HOME/.nvm/nvm.sh" && \
+    nvm install --lts && \
+    ln -s $(which node) /bin/node && \
+    ln -s $(which npm) /bin/npm && \
     echo "Done installing system packages."
 
-# Free up UID 1000 and create dev user
-# Also Create directories here since mounts in docker-compose.yml will create them as root
-RUN userdel ubuntu && \
-    useradd \
-        --create-home \
-        --user-group \
-        --uid 1000 \
-        --shell /bin/bash \
-        --no-log-init \
-        $USER_NAME && \
-    mkdir --parents $USER_HOME/.local/bin && \
-    echo "Done setting up $ENVIRONMENT Home."
+# Update default user, also create directories here since mounts in docker-compose.yml will create them as root
+RUN usermod --login $USER_NAME ubuntu && \
+    groupmod --new-name $USER_NAME ubuntu && \
+    usermod --home $USER_HOME --move-home $USER_NAME && \
+    mkdir --parents \
+        $USER_HOME/.local/bin \
+        $USER_HOME/.cache &&\
+    mv $HOME/.nvm $USER_HOME/ && \
+    mv $HOME/.bun $USER_HOME/ && \
+    echo "Done updating user."
 
-# Install Node and Bun
-RUN curl -fsSL https://bun.sh/install | bash && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && \
-    # Source nvm
-    . $NVM_LOCATION/nvm.sh && \
-    nvm install $NODE_VERSION && \
-    # Source nvm again after install
-    . $NVM_LOCATION/nvm.sh && \
-    ln -s $BUN_LOCATION/bin/bun $USER_HOME/.local/bin/bun && \
-    ln -s $(nvm which node) $USER_HOME/.local/bin/node && \
-    ln -s $NVM_LOCATION/versions/node/$(node -v)/bin/npm $USER_HOME/.local/bin/npm && \
-    ln -s $NVM_LOCATION/versions/node/$(node -v)/bin/npx $USER_HOME/.local/bin/npx && \
-    # ln -s $(nvm which npm) $USER_HOME/.local/bin/npm && \
-    # ln -s $(nvm which npx) $USER_HOME/.local/bin/npx && \
-    echo "Done installing $ENVIRONMENT packages."
+ENV PATH="$PATH:$USER_HOME/.bun/bin"
 
-COPY ./configs/bash/bashrc $USER_HOME/.bashrc
-COPY ./configs/bash/profile $USER_HOME/.profile
+COPY ./configs/bash/.bashrc $USER_HOME/.bashrc
+COPY ./configs/bash/.profile $USER_HOME/.profile
 
-RUN chown --recursive $USER_NAME:$USER_NAME $USER_HOME
+RUN chown --recursive $USER_NAME:$USER_NAME $USER_HOME --verbose
 
 # Set the working directory in the container
 WORKDIR $USER_HOME
