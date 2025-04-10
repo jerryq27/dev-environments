@@ -24,9 +24,9 @@ Things to keep in mind with writing the Dockerfile:
 1. All commands are ran as `root` and files created will be owned by `root`
 1. Note where packages install things and which envnironment variables they use
 1. Create a new user with a `$UID:$GID` that matches the host system user's `$UID:$GID`
-1. Update `$PATH` or link package binaries to the new user's `.local/bin/` directory
+1. Add any folders that will be used in the compose file's volume binds (they will be owned by root if created in compose)
+1. Update `$PATH` or link package binaries to `/bin`
 1. Copy any user-specific configuration files (like `.bashrc`) into the new user's Home
-1. Ensure `$PATH` includes that directory through the Dockerfile or something like `.profile`
 1. Make sure the new user is the owner of their Home directory
 1. Switch from root to the new user
 
@@ -36,6 +36,9 @@ Building the image:
 
 ```sh
 docker build -t $ENV_NAME:$VERSION -f $DOCKERFILE .
+
+# Get more detailed logs during a build.
+docker build -t $ENV_NAME:$VERSION -f $DOCKERFILE . --progress=plain
 ```
 
 ## Creating the Compose file
@@ -48,6 +51,8 @@ Things to keep in mind with writing the compose file:
 1. Use locally built image with `pull_policy: missing`
 1. Ensure I can drop into a bash session with `stdin_open: true` and `tty: true`
 1. Copy project files into the user's Home folder
+1. Volume binds to non-existent folders (like ~/.cache) will be created and owned by root,
+so ensure they are already created during the image build
 
 Bare minimum compose file:
 ```yml
