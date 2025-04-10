@@ -130,3 +130,14 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+
+# if [ $USER_NAME = "webdev" ]; then
+#     export BUN_INSTALL="$USER_HOME/.bun"
+#     export PATH="$BUN_INSTALL/bin:$PATH"
+#
+#     export NVM_DIR="$USER_HOME/.nvm"
+#     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+#     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# fi
+
